@@ -5,17 +5,19 @@ function Navbar() {
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
-    window.location.href = "/login"; // 🔹 Recarga la página para ocultar el Navbar
+    navigate("/login"); // ✅ Se usa navigate en vez de window.location.href
   };
 
   return (
-    <nav>
-      <ul>
-        <li><Link to="/">Inicio</Link></li>
-        <li><Link to="/about">Acerca de</Link></li>
-        <li><Link to="/contact">Contacto</Link></li>
-        <li><Link to="/user">Usuario</Link></li>
-        <li><button onClick={handleLogout}>Cerrar Sesión</button></li>
+    <nav className="navbar">
+      <ul className="navbar-menu">
+        <li><Link to="/" className="nav-link">Inicio</Link></li>
+        <li><Link to="/about" className="nav-link">Acerca de</Link></li>
+        <li><Link to="/contact" className="nav-link">Contacto</Link></li>
+        <li><Link to="/user" className="nav-link">Usuario</Link></li>
+        <li>
+          <button onClick={handleLogout} className="logout-button">Cerrar Sesión</button>
+        </li>
       </ul>
     </nav>
   );

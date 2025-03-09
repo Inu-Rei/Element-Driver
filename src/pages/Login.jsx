@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "../styles/Login.css";
 
 function Login() {
@@ -24,15 +24,14 @@ function Login() {
         <source src="/videos/inicio_de_sesion.mp4" type="video/mp4" />
         Tu navegador no soporta el video.
       </video>
+
+      {/* Branding */}
       <div className="branding">
-          <h1 className="app-name">Element Driver</h1>
-        </div>
+        <h1 className="app-name">Element Driver</h1>
+      </div>
+
       {/* Contenedor del login */}
       <div className="login-container">
-        {/* Sección izquierda: Branding */}
-        
-
-        {/* Sección derecha: Formulario */}
         <div className="login-form">
           <h2>Iniciar Sesión</h2>
           <form onSubmit={handleLogin}>
@@ -50,10 +49,12 @@ function Login() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <button type="submit">Iniciar Sesión</button>
+            <button type="submit" className="login-button">Iniciar Sesión</button>
           </form>
-          <a href="#">¿Olvidaste tu contraseña?</a>
-          <a href="/register">Crear cuenta nueva</a>
+
+          {/* Se corrigió el error del href="#" */}
+          <button className="forgot-password">¿Olvidaste tu contraseña?</button>
+          <Link to="/register" className="register-link">Crear cuenta nueva</Link>
         </div>
       </div>
     </div>
