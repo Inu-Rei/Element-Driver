@@ -2,12 +2,12 @@
 body, html {
     margin: 0;
     padding: 0;
-    
     font-family: Helvetica, Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
-    
+    height: 100vh;
+    overflow: hidden;
 }
 
 /* Video de fondo */
@@ -23,84 +23,109 @@ body, html {
 
 /* Contenedor principal del login */
 .login-container {
-    position: relative;  /* Hace que 'left' funcione correctamente */
-    left: 90%;  /* Comienza en la posición original */
+    position: relative;
     display: flex;
-    width: 40vw;
-    height: 60vh;
-    max-width: 500px;
-    max-height: 850px;
+    width: 35vw; /* Se redujo el ancho */
+    height: 50vh; /* Se redujo la altura */
+    max-width: 420px;
+    max-height: 600px;
     background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(8px);
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    top: -30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
-
 
 /* Sección izquierda: Branding */
 .branding {
-    position: relative;  /* O absolute o fixed, dependiendo del caso */
-    left: -100%;  /* Mueve el elemento hacia la izquierda */
     background-color: rgba(24, 119, 242, 0.85);
-    width: 60%; /* Ajusta el ancho (puedes probar con 60%, 50%, etc.) */
-    max-width: 300px; /* Define un tamaño máximo si es necesario */
-    max-height: 80%; /* Ajusta la altura máxima */
-    
-     
-    
+    width: 45%; /* Ajustado para más equilibrio */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
 }
-
 
 .app-name {
-    position: relative;  /* O absolute o fixed, dependiendo del caso */
-    left: 20%;  /* Mueve el elemento hacia la izquierda */
-    font-size: 48px; /* Reduce este valor según lo necesites */
+    font-size: 1.8rem; /* Se redujo el tamaño */
     font-weight: bold;
-    color: hsla(67, 81%, 4%, 0.945);
-    
-    
+    color: white;
+    text-align: center;
 }
-
 
 /* Sección derecha: Formulario */
 .login-form {
-    
     flex: 1;
-    background: rgba(255, 255, 255, 0);  /* Fondo completamente transparente */
-    padding: 50px;
+    background: rgba(255, 255, 255, 0);
+    padding: 25px; /* Se redujo el padding */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-        
 }
-
 
 /* Estilos del formulario */
 .login-form h2 {
-    font-size: 60px; /* Reducimos tamaño */
-    margin-bottom: 55px;
+    font-size: 2rem; /* Se redujo el tamaño del título */
+    margin-bottom: 20px;
 }
 
 .login-form input, 
 .login-form button {
-    width: 90%;
-    padding: 5px;
-    font-size: 30px;
+    width: 85%; /* Se ajustó el tamaño */
+    padding: 8px;
+    font-size: 1rem; /* Se redujo la fuente */
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 8px;
+}
+
+.login-form input {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #ccc;
 }
 
 .login-form button {
-    margin-top: 30px;
+    margin-top: 10px;
     cursor: pointer;
     background-color: #1877f2;
     color: white;
-    border: none;
-    border-radius: 10px;
+    font-weight: bold;
     transition: 0.3s;
 }
 
 .login-form button:hover {
     background-color: #166fe5;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column;
+        width: 80vw;
+        height: auto;
+        max-width: 350px;
+    }
+
+    .branding {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .app-name {
+        font-size: 1.4rem;
+    }
+
+    .login-form {
+        padding: 15px;
+    }
+
+    .login-form h2 {
+        font-size: 1.8rem;
+    }
+
+    .login-form input, 
+    .login-form button {
+        font-size: 0.9rem;
+    }
 }

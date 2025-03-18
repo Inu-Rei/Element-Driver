@@ -1,75 +1,150 @@
+/* Fondo y alineación */
 body {
   background-image: url("/public/images/registro.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  padding: 100px;
+  box-sizing: border-box;
 }
 
-
+/* Contenedor con scroll */
 .register-container {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 40px;
+  width: 100%;
+  max-width: 500px; 
+  max-height: 80vh; /* Se limita para forzar scroll */
+  padding: 20px;
   border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.6); /* Fondo blanco con transparencia */
-  backdrop-filter: blur(10px); /* Efecto difuminado */
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(5px);
   text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más marcada */
-  border: 2px solid rgba(255, 255, 255, 0.3); /* Borde sutil */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  overflow-y: auto; /* Scroll activado */
+  scrollbar-width: thin; /* Hace la barra de scroll visible */
+  scrollbar-color: #007bff rgba(255, 255, 255, 0.6);
+  position: relative;
 }
 
+/* Efecto de sombra para indicar que hay más contenido */
+.register-container::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(0, 0, 0, 0.1) 100%);
+}
 
+/* Personalizar barra de scroll en navegadores modernos */
+.register-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.register-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.register-container::-webkit-scrollbar-thumb {
+  background: #007bff;
+  border-radius: 4px;
+}
+
+.register-container::-webkit-scrollbar-thumb:hover {
+  background: #0056b3;
+}
+
+/* Título */
 .register-container h2 {
   color: #333;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  font-size: 1.5rem;
 }
 
+/* Labels */
 .register-container label {
   display: block;
   text-align: left;
-  margin: 10px 0 5px;
+  margin: 6px 0;
   font-weight: bold;
+  font-size: 0.9rem;
 }
 
+/* Inputs y selects */
 .register-container input,
 .register-container select {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
+  padding: 8px;
+  margin-bottom: 12px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 16px;
+  font-size: 1rem;
 }
 
+/* Botón */
 .register-container button {
-  width: 40%;
-  height:50px;
-  padding: 10px;
+  width: 100%;
+  height: 40px;
   background-color: #007bff;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 1rem;
   transition: 0.3s;
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
 .register-container button:hover {
   background-color: #0056b3;
 }
 
+/* Texto pequeño */
 .register-container p {
-  margin-top: 10px;
-  font-size: 14px;
+  margin-top: 15px;
+  font-size: 0.85rem;
 }
 
 .register-container a {
   color: #007bff;
   text-decoration: none;
+  font-size: 0.9rem;
 }
 
 .register-container a:hover {
   text-decoration: underline;
 }
 
+/* Ajustes en pantallas pequeñas */
+@media (max-width: 768px) {
+  .register-container {
+    max-width: 340px;
+    max-height: 75vh;
+    padding: 15px;
+  }
+
+  .register-container h2 {
+    font-size: 1.3rem;
+  }
+
+  .register-container label {
+    font-size: 0.85rem;
+  }
+
+  .register-container input,
+  .register-container select {
+    font-size: 0.85rem;
+    padding: 6px;
+  }
+
+  .register-container button {
+    font-size: 0.9rem;
+    height: 38px;
+  }
+}

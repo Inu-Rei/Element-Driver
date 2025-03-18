@@ -1,38 +1,55 @@
 .navbar {
-    background-color: #1877f2; /* Color azul estilo Facebook */
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  background-color: #1877f2; /* Azul estilo Facebook */
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+.navbar li {
+  margin-right: 20px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+}
+
+.logout-button {
+  background-color: #f02849;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.logout-button:hover {
+  background-color: #c82333;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .navbar {
+      flex-direction: column;
+      align-items: flex-start;
   }
-  
-  .navbar ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
+
+  .navbar-menu {
+      flex-direction: column;
+      width: 100%;
   }
-  
+
   .navbar li {
-    margin-right: 20px;
+      margin-bottom: 10px;
   }
-  
-  .navbar a {
-    text-decoration: none;
-    color: white;
-    font-weight: bold;
-  }
-  
-  .navbar button {
-    background-color: #f02849;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 5px;
-  }
-  
-  .navbar button:hover {
-    background-color: #c82333;
-  }
-  
+}

@@ -8,49 +8,65 @@
     align-items: center;
     text-align: center;
     color: white;
-    overflow: hidden;
+    overflow: auto; /* Cambiado de hidden a auto */
+    padding: 20px;
+    box-sizing: border-box;
 }
 
+/* Ajuste para el video */
 .error-video {
-    position: absolute;
-    top: 50%;
-    left: 50%;
+    position: fixed; /* Cambio de absolute a fixed */
+    inset: 0; /* Ocupa toda la pantalla */
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transform: translate(-50%, -50%);
     z-index: -1;
 }
 
-/* Estilos mejorados para el texto */
+/* Estilos del texto */
 .error-container h1,
 .error-container p {
     position: relative;
     z-index: 1;
-    font-size: 3rem; /* Texto más grande */
-    font-weight: bold; /* Texto en negrita */
-    text-transform: uppercase; /* Mayúsculas */
-    background: rgba(0, 0, 0, 0.7); /* Fondo oscuro semitransparente */
-    padding: 15px 20px; /* Espaciado para que resalte */
-    border-radius: 10px; /* Bordes redondeados */
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: bold;
+    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px 20px;
+    border-radius: 10px;
+    max-width: 90%;
 }
 
-/* Botón mejorado */
+/* Botón con mejor accesibilidad y contraste */
 .error-container button {
     position: relative;
     z-index: 1;
-    background: rgba(255, 255, 255, 0.3);
-    color: white;
+    background: rgba(255, 255, 255, 0.5); /* Mayor visibilidad */
+    color: black;
     border: 2px solid white;
     padding: 12px 25px;
-    font-size: 1.5rem; /* Tamaño del botón más grande */
+    font-size: clamp(1rem, 2vw, 1.5rem);
     font-weight: bold;
     cursor: pointer;
-    transition: 0.3s;
+    transition: background 0.3s, color 0.3s;
     border-radius: 8px;
+    outline: none;
 }
 
 .error-container button:hover {
     background: white;
     color: black;
+}
+
+/* Media query para móviles */
+@media (max-width: 768px) {
+    .error-container h1,
+    .error-container p {
+        font-size: 2rem;
+    }
+
+    .error-container button {
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
 }
