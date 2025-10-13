@@ -1,0 +1,30 @@
+.header {
+  background-color: #fff;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar a {
+  margin: 0 10px;
+  color: #333;
+  text-decoration: none;
+}
+
+.navbar a:hover {
+  color: #007bff;
+}
+.loginBtn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.loginBtn:hover {
+  background: #0056b3;
+}
