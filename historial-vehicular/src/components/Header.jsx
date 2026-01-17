@@ -3,6 +3,7 @@ import styles from "../styles/Header.module.css";
 import LoginModal from "../components/LoginModal";
 
 
+
 const Header = () => {
   return (
     <header className={styles.header}>

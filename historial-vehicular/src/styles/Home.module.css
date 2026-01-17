@@ -108,3 +108,165 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ✅ Dashboard Section (NO rompe tu Home) */
+.dashboardSection {
+  padding: 3rem 2rem;
+  background: #ffffff;
+}
+
+.dashboardTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #222;
+  margin: 0 0 1.5rem;
+  text-align: center;
+}
+
+.dashboardStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dashboardCard {
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fff;
+}
+
+.dashboardLabel {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.dashboardValue {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #222;
+  margin-top: 0.25rem;
+}
+
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.dashboardBox {
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fff;
+}
+
+.boxTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+  color: #222;
+}
+
+.alertList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.alertItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.alertDanger {
+  border-color: rgba(255, 0, 0, 0.35);
+}
+
+.alertWarn {
+  border-color: rgba(255, 165, 0, 0.55);
+}
+
+.muted {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+.tableWrap {
+  width: 100%;
+  overflow: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 520px;
+}
+
+.table th,
+.table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  text-align: left;
+  font-size: 0.9rem;
+  color: #222;
+}
+
+.quickActions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.primaryBtn {
+  background: #333;
+  color: #fff;
+  padding: 0.75rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.primaryBtn:hover {
+  background: #555;
+}
+
+.linkBtn {
+  background: transparent;
+  color: #222;
+  padding: 0.75rem 1.2rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.linkBtn:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* Responsive dashboard */
+@media (max-width: 768px) {
+  .dashboardStats {
+    grid-template-columns: 1fr;
+  }
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+  }
+  .dashboardSection {
+    padding: 2rem 1rem;
+  }
+}

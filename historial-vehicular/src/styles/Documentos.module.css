@@ -1,0 +1,50 @@
+.page { display: flex; flex-direction: column; gap: 16px; }
+.header { margin-bottom: 4px; }
+.title { margin: 0; font-size: 24px; }
+.subtitle { margin: 6px 0 0; opacity: .8; }
+
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.statCard { padding: 12px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); }
+.statLabel { display: block; font-size: 12px; opacity: .8; }
+.statValue { display: block; font-size: 18px; font-weight: 700; margin-top: 4px; }
+
+.card { padding: 14px; border-radius: 12px; border: 1px solid rgba(0,0,0,.1); }
+.cardTitle { margin: 0 0 12px; font-size: 16px; }
+
+.alert { padding: 10px; border-radius: 10px; border: 1px solid rgba(255,0,0,.25); background: rgba(255,0,0,.06); margin-bottom: 10px; }
+
+.form { display: flex; flex-direction: column; gap: 12px; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.field input { padding: 10px; border-radius: 10px; border: 1px solid rgba(0,0,0,.15); outline: none; }
+.fieldFull { grid-column: 1 / -1; }
+
+.actions { display: flex; gap: 10px; }
+.btn { padding: 10px 14px; border-radius: 10px; border: none; cursor: pointer; }
+.btnSecondary { padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(0,0,0,.15); cursor: pointer; background: transparent; }
+
+.tableWrap { width: 100%; overflow: auto; }
+.table { width: 100%; border-collapse: collapse; min-width: 980px; }
+.table th, .table td { padding: 10px; border-bottom: 1px solid rgba(0,0,0,.1); text-align: left; font-size: 13px; }
+.rowActions { display: flex; gap: 8px; }
+
+.mini { padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(0,0,0,.15); cursor: pointer; background: transparent; }
+.miniDanger { border-color: rgba(255,0,0,.35); }
+
+.estado { display: inline-block; padding: 4px 8px; border-radius: 999px; border: 1px solid rgba(0,0,0,.15); font-size: 12px; }
+.estadoVigente { border-color: rgba(0,128,0,.35); }
+.estadoPorVencer { border-color: rgba(255,165,0,.55); }
+.estadoVencido { border-color: rgba(255,0,0,.45); }
+
+@media (max-width: 760px) {
+  .stats { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: 1fr; }
+}
+
+.select {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,.15);
+  outline: none;
+  background: white;
+}
