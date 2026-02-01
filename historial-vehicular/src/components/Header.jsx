@@ -1,20 +1,27 @@
 import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "../styles/Header.module.css";
-import LoginModal from "../components/LoginModal";
-
-
 
 const Header = () => {
+  const navigate = useNavigate();
+
   return (
     <header className={styles.header}>
-      <h1>ELEMENT DRIVER</h1>
+      <Link to="/" className={styles.logoLink} aria-label="Ir al inicio">
+        <h1 style={{ margin: 0, fontSize: "18px", color: "#222" }}>ELEMENT DRIVER</h1>
+      </Link>
+
       <nav className={styles.navbar}>
-        <a href="/">Inicio</a>
-        <a href="/vehiculos">Vehículos</a>
-        <a href="/mantenimientos">Mantenimientos</a>
-        <a href="/documentos">Documentos</a>
-        <a href="/contacto">Contacto</a>
-        <a href="/login">Iniciar sesión</a>
+        <Link to="/">Inicio</Link>
+        <Link to="/vehiculos">Vehículos</Link>
+        <Link to="/mantenimientos">Mantenimientos</Link>
+        <Link to="/documentos">Documentos</Link>
+        <Link to="/contacto">Contacto</Link>
+
+        {/* Si quieres que sea botón, usa loginBtn */}
+        <button className={styles.loginBtn} onClick={() => navigate("/login")}>
+          Iniciar sesión
+        </button>
       </nav>
     </header>
   );

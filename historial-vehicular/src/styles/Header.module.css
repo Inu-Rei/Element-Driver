@@ -4,18 +4,33 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* ✅ Navbar */
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap; /* desktop: todo en una línea */
+}
+
 .navbar a {
-  margin: 0 10px;
+  margin: 0;
   color: #333;
   text-decoration: none;
+  white-space: nowrap; /* evita que el link se parta raro */
+  padding: 6px 8px;
+  border-radius: 6px;
 }
 
 .navbar a:hover {
   color: #007bff;
+  background: rgba(0, 123, 255, 0.08);
 }
+
+/* ✅ Botón login */
 .loginBtn {
   background: #007bff;
   color: white;
@@ -23,15 +38,19 @@
   padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .loginBtn:hover {
   background: #0056b3;
-}/* Logo Styles */
+}
+
+/* ✅ Logo */
 .logoLink {
   display: flex;
   align-items: center;
   text-decoration: none;
+  flex: 0 0 auto;
 }
 
 .logoImage {
@@ -44,8 +63,38 @@
   transform: scale(1.05);
 }
 
+/* ✅ Responsive: el menú baja y NO se desborda */
 @media (max-width: 768px) {
+  .header {
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap; /* permite que el navbar baje */
+  }
+
   .logoImage {
     height: 40px;
+  }
+
+  .navbar {
+    width: 100%;
+    flex-wrap: wrap;        /* ✅ los links se acomodan en varias líneas */
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .navbar a {
+    font-size: 13px;
+    padding: 6px 8px;
+  }
+}
+
+/* ✅ Extra: pantallas muy pequeñas */
+@media (max-width: 420px) {
+  .navbar a {
+    font-size: 12px;
+    padding: 6px 7px;
+  }
+
+  .loginBtn {
+    padding: 6px 10px;
   }
 }
