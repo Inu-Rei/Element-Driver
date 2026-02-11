@@ -1,100 +1,112 @@
-.header {
-  background-color: #fff;
-  padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* ✅ Navbar */
-.navbar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: nowrap; /* desktop: todo en una línea */
-}
-
-.navbar a {
-  margin: 0;
-  color: #333;
-  text-decoration: none;
-  white-space: nowrap; /* evita que el link se parta raro */
-  padding: 6px 8px;
-  border-radius: 6px;
-}
-
-.navbar a:hover {
-  color: #007bff;
-  background: rgba(0, 123, 255, 0.08);
-}
-
-/* ✅ Botón login */
-.loginBtn {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.loginBtn:hover {
-  background: #0056b3;
+.header{
+  background:#fff;
+  padding: 0.8rem 1rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.1);
+  position: sticky;
+  top:0;
+  z-index:1000;
 }
 
 /* ✅ Logo */
-.logoLink {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
+.logoLink{
+  display:flex;
+  align-items:center;
+  text-decoration:none;
   flex: 0 0 auto;
 }
 
-.logoImage {
-  height: 50px;
-  width: auto;
-  transition: transform 0.3s ease;
+.logoImage{
+  height: 54px;       /* ✅ un poquito más grande */
+  width: 54px;
+  object-fit: contain;
 }
 
-.logoImage:hover {
-  transform: scale(1.05);
+/* Desktop nav */
+.navbar{
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
 
-/* ✅ Responsive: el menú baja y NO se desborda */
-@media (max-width: 768px) {
-  .header {
-    padding: 0.75rem 1rem;
-    flex-wrap: wrap; /* permite que el navbar baje */
-  }
-
-  .logoImage {
-    height: 40px;
-  }
-
-  .navbar {
-    width: 100%;
-    flex-wrap: wrap;        /* ✅ los links se acomodan en varias líneas */
-    justify-content: flex-start;
-    gap: 8px;
-  }
-
-  .navbar a {
-    font-size: 13px;
-    padding: 6px 8px;
-  }
+.navbar a{
+  color:#333;
+  text-decoration:none;
+  white-space:nowrap;
+  padding:6px 8px;
+  border-radius:6px;
 }
 
-/* ✅ Extra: pantallas muy pequeñas */
-@media (max-width: 420px) {
-  .navbar a {
-    font-size: 12px;
-    padding: 6px 7px;
+.navbar a:hover{
+  color:#007bff;
+  background: rgba(0,123,255,.08);
+}
+
+.loginBtn{
+  background:#007bff;
+  color:#fff;
+  border:none;
+  padding:6px 12px;
+  border-radius:6px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+
+.loginBtn:hover{
+  background:#0056b3;
+}
+
+/* ✅ Botón hamburguesa: oculto en desktop */
+.burger{
+  display:none;
+  border:1px solid rgba(0,0,0,.15);
+  background:transparent;
+  border-radius:8px;
+  padding:8px 10px;
+  cursor:pointer;
+  font-size:18px;
+  line-height:1;
+}
+
+/* ✅ MÓVIL */
+@media (max-width: 768px){
+  .burger{ display:block; }
+
+  /* ✅ Nav se vuelve menú desplegable */
+  .navbar{
+    display:none;
+    position:absolute;
+    top: calc(100% + 8px);
+    right: 10px;
+    left: 10px;
+    flex-direction:column;
+    align-items:stretch;
+    gap:8px;
+    padding:12px;
+    border-radius:12px;
+    background:#fff;
+    box-shadow: 0 10px 30px rgba(0,0,0,.12);
+    border: 1px solid rgba(0,0,0,.08);
   }
 
-  .loginBtn {
-    padding: 6px 10px;
+  .navOpen{
+    display:flex;
+  }
+
+  .navbar a{
+    padding:10px 10px;
+  }
+
+  .loginBtn{
+    width:100%;
+    padding:10px 12px;
+  }
+
+  .logoImage{
+    height: 46px;
+    width: 46px;
   }
 }
