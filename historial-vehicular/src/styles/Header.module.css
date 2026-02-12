@@ -71,6 +71,60 @@
   line-height:1;
 }
 
+/* =========================
+   ✅ Usuario logueado (pro)
+   ========================= */
+.userChip{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-left: 8px;
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.avatar{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  background: rgba(0,123,255,0.14);
+  color:#0b4fb3;
+  flex: 0 0 auto;
+}
+
+.userText{
+  display:flex;
+  flex-direction:column;
+  line-height:1.05;
+}
+
+.userHello{
+  font-size:12px;
+  opacity:0.75;
+}
+
+.userNameStrong{
+  font-size:13px;
+  font-weight:700;
+  white-space:nowrap;
+  max-width:140px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* (opcional) si aún usas .userName en alguna parte */
+.userName{
+  margin-left: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 /* ✅ MÓVIL */
 @media (max-width: 768px){
   .burger{ display:block; }
@@ -108,5 +162,17 @@
   .logoImage{
     height: 46px;
     width: 46px;
+  }
+
+  /* ✅ En móvil, el chip ocupa todo el ancho y se ve bien en lista */
+  .userChip{
+    width:100%;
+    justify-content:flex-start;
+    margin-left: 0;
+    padding:10px 12px;
+  }
+
+  .userNameStrong{
+    max-width: 100%;
   }
 }
