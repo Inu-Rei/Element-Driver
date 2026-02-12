@@ -1,62 +1,105 @@
-import { useMemo, useState } from "react";
+// ✅ src/pages/Documentos.jsx
+import { useEffect, useMemo, useState } from "react";
 import styles from "../styles/Documentos.module.css";
-import { getVehiculos, getDocumentos, saveDocumentos, uid } from "../data/storage";
+
+const API = "https://backend-element-driver.onrender.com/api";
 
 export default function Documentos() {
-  const [vehiculos] = useState(getVehiculos());
-  const [documentos, setDocumentos] = useState(getDocumentos());
+  const [vehiculos, setVehiculos] = useState([]);
+  const [documentos, setDocumentos] = useState([]);
 
-  const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState(vehiculos[0]?.id ?? "");
+  const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState(
+    localStorage.getItem("vehiculoDocs") || ""
+  );
+  const [editId, setEditId] = useState(null);
+  const [error, setError] = useState("");
 
   const initialForm = {
-    vehiculoId: vehiculos[0]?.id ?? "",
-    nombre: "",
+    vehiculoId: "",
+    tipo: "",
     numero: "",
-    entidad: "",
-    vencimiento: "",
+    fechaVencimiento: "",
     notas: "",
   };
 
   const [form, setForm] = useState(initialForm);
-  const [editId, setEditId] = useState(null);
-  const [error, setError] = useState("");
 
-  const hoy = useMemo(() => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d;
-  }, []);
+  const userId = localStorage.getItem("userId") || "";
+  const headersAuth = { "x-user-id": userId };
 
-  const diasEntre = (a, b) => Math.ceil((a - b) / (1000 * 60 * 60 * 24));
+  const cargarVehiculos = async () => {
+    try {
+      const res = await fetch(`${API}/vehiculos`, { headers: headersAuth });
+      const data = await res.json().catch(() => []);
+      const arr = Array.isArray(data) ? data : [];
+      setVehiculos(arr);
 
-  const estadoDoc = (vencimientoStr) => {
-    const fecha = new Date(vencimientoStr + "T00:00:00");
-    const diffDias = diasEntre(fecha, hoy);
+      if (arr.length > 0) {
+        const guardado = localStorage.getItem("vehiculoDocs");
+        const existe = guardado && arr.some((v) => String(v.id) === String(guardado));
+        const idFinal = existe ? String(guardado) : String(arr[0].id);
 
-    if (diffDias < 0) return { texto: "Vencido", clase: styles.estadoVencido, dias: diffDias };
-    if (diffDias <= 30) return { texto: "Por vencer", clase: styles.estadoPorVencer, dias: diffDias };
-    return { texto: "Vigente", clase: styles.estadoVigente, dias: diffDias };
+        setVehiculoSeleccionado(idFinal);
+        localStorage.setItem("vehiculoDocs", idFinal);
+        setForm((p) => ({ ...p, vehiculoId: idFinal }));
+      } else {
+        setVehiculoSeleccionado("");
+        setForm((p) => ({ ...p, vehiculoId: "" }));
+      }
+    } catch {
+      setVehiculos([]);
+      setError("No se pudo cargar la lista de vehículos (backend).");
+    }
   };
 
-  const documentosFiltrados = useMemo(() => {
-    return documentos.filter((d) => String(d.vehiculoId) === String(vehiculoSeleccionado));
-  }, [documentos, vehiculoSeleccionado]);
+  const cargarDocumentos = async (vehiculoId) => {
+    if (!vehiculoId) {
+      setDocumentos([]);
+      return;
+    }
 
-  const conteos = useMemo(() => {
-    let vigente = 0, porVencer = 0, vencido = 0;
-    documentosFiltrados.forEach((d) => {
-      const e = estadoDoc(d.vencimiento).texto;
-      if (e === "Vigente") vigente++;
-      if (e === "Por vencer") porVencer++;
-      if (e === "Vencido") vencido++;
-    });
-    return { vigente, porVencer, vencido };
+    try {
+      const res = await fetch(`${API}/documentos?vehiculoId=${vehiculoId}`, {
+        headers: headersAuth,
+      });
+      const data = await res.json().catch(() => []);
+      setDocumentos(Array.isArray(data) ? data : []);
+    } catch {
+      setDocumentos([]);
+      setError("No se pudo cargar documentos (backend).");
+    }
+  };
+
+  useEffect(() => {
+    cargarVehiculos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [documentosFiltrados]);
+  }, []);
 
-  const setAndPersist = (next) => {
-    setDocumentos(next);
-    saveDocumentos(next);
+  useEffect(() => {
+    cargarDocumentos(vehiculoSeleccionado);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vehiculoSeleccionado]);
+
+  const list = useMemo(() => {
+    return (Array.isArray(documentos) ? documentos : [])
+      .slice()
+      .sort((a, b) => {
+        const fa = a.fechaVencimiento || "";
+        const fb = b.fechaVencimiento || "";
+        return fa < fb ? 1 : -1;
+      });
+  }, [documentos]);
+
+  const vencidos = useMemo(() => {
+    const hoy = new Date().toISOString().slice(0, 10);
+    return list.filter((d) => d.fechaVencimiento && d.fechaVencimiento < hoy).length;
+  }, [list]);
+
+  const hoy = new Date().toISOString().slice(0, 10);
+  const estadoVencimiento = (fecha) => {
+    if (!fecha) return "Sin fecha";
+    if (fecha < hoy) return "Vencido";
+    return "Vigente";
   };
 
   const onChange = (e) => {
@@ -67,60 +110,88 @@ export default function Documentos() {
 
   const validar = () => {
     if (!form.vehiculoId) return "Debes seleccionar un vehículo.";
-    if (!form.nombre.trim()) return "El nombre del documento es obligatorio.";
-    if (!form.numero.trim()) return "El número es obligatorio.";
-    if (!form.entidad.trim()) return "La entidad es obligatoria.";
-    if (!form.vencimiento) return "La fecha de vencimiento es obligatoria.";
+    if (!form.tipo.trim()) return "El tipo es obligatorio (SOAT, Tecno, Seguro, Licencia...).";
     return "";
   };
 
   const resetForm = () => {
-    setForm((p) => ({ ...initialForm, vehiculoId: vehiculoSeleccionado }));
+    setForm((p) => ({
+      ...initialForm,
+      vehiculoId: vehiculoSeleccionado || "",
+    }));
     setEditId(null);
     setError("");
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     const msg = validar();
     if (msg) return setError(msg);
 
     const payload = {
       vehiculoId: Number(form.vehiculoId),
-      nombre: form.nombre.trim(),
+      tipo: form.tipo.trim(),
       numero: form.numero.trim(),
-      entidad: form.entidad.trim(),
-      vencimiento: form.vencimiento,
+      fechaVencimiento: (form.fechaVencimiento || "").trim(),
       notas: form.notas.trim(),
     };
 
-    if (editId) {
-      const next = documentos.map((d) => (d.id === editId ? { ...d, ...payload } : d));
-      setAndPersist(next);
-    } else {
-      const next = [{ id: uid(), ...payload }, ...documentos];
-      setAndPersist(next);
+    try {
+      const url = editId ? `${API}/documentos/${editId}` : `${API}/documentos`;
+      const method = editId ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json", ...headersAuth },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        setError(data?.message || "Error guardando documento en el backend.");
+        return;
+      }
+
+      resetForm();
+      await cargarDocumentos(vehiculoSeleccionado);
+    } catch {
+      setError("No se pudo conectar con el backend para guardar.");
     }
-    resetForm();
   };
 
   const onEdit = (d) => {
     setEditId(d.id);
     setForm({
-      vehiculoId: d.vehiculoId,
-      nombre: d.nombre,
-      numero: d.numero,
-      entidad: d.entidad,
-      vencimiento: d.vencimiento,
-      notas: d.notas || "",
+      vehiculoId: String(d.vehiculoId ?? vehiculoSeleccionado ?? ""),
+      tipo: d.tipo ?? "",
+      numero: d.numero ?? "",
+      fechaVencimiento: d.fechaVencimiento ?? "",
+      notas: d.notas ?? "",
     });
+    setError("");
   };
 
-  const onDelete = (id) => {
+  const onDelete = async (id) => {
     if (!window.confirm("¿Seguro que deseas eliminar este documento?")) return;
-    const next = documentos.filter((d) => d.id !== id);
-    setAndPersist(next);
-    if (editId === id) resetForm();
+
+    try {
+      const res = await fetch(`${API}/documentos/${id}`, {
+        method: "DELETE",
+        headers: headersAuth,
+      });
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        setError(data?.message || "Error eliminando documento en el backend.");
+        return;
+      }
+
+      if (editId === id) resetForm();
+      await cargarDocumentos(vehiculoSeleccionado);
+    } catch {
+      setError("No se pudo conectar con el backend para eliminar.");
+    }
   };
 
   const vehiculoActual = vehiculos.find((v) => String(v.id) === String(vehiculoSeleccionado));
@@ -130,7 +201,9 @@ export default function Documentos() {
       <div className={styles.header}>
         <h2 className={styles.title}>Documentos</h2>
         <p className={styles.subtitle}>
-          {vehiculoActual ? `Documentos de: ${vehiculoActual.nombre} (${vehiculoActual.placa})` : "Control de documentos"}
+          {vehiculoActual
+            ? `Vehículo: ${vehiculoActual.marca ?? ""} ${vehiculoActual.modelo ?? ""} (${vehiculoActual.placa ?? ""})`
+            : "Gestión de documentos por vehículo"}
         </p>
       </div>
 
@@ -143,26 +216,37 @@ export default function Documentos() {
               className={styles.select}
               value={vehiculoSeleccionado}
               onChange={(e) => {
-                setVehiculoSeleccionado(e.target.value);
-                setForm((p) => ({ ...p, vehiculoId: e.target.value }));
+                const id = e.target.value;
+                setVehiculoSeleccionado(id);
+                localStorage.setItem("vehiculoDocs", id);
+                setForm((p) => ({ ...p, vehiculoId: id }));
                 setEditId(null);
                 setError("");
               }}
             >
-              {vehiculos.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.placa} — {v.nombre}
-                </option>
-              ))}
+              {vehiculos.length === 0 ? (
+                <option value="">No hay vehículos</option>
+              ) : (
+                vehiculos.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.placa} — {v.marca} {v.modelo}
+                  </option>
+                ))
+              )}
             </select>
           </label>
         </div>
       </div>
 
       <div className={styles.stats}>
-        <div className={styles.statCard}><span className={styles.statLabel}>Vigentes</span><span className={styles.statValue}>{conteos.vigente}</span></div>
-        <div className={styles.statCard}><span className={styles.statLabel}>Por vencer (≤ 30 días)</span><span className={styles.statValue}>{conteos.porVencer}</span></div>
-        <div className={styles.statCard}><span className={styles.statLabel}>Vencidos</span><span className={styles.statValue}>{conteos.vencido}</span></div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Registros</span>
+          <span className={styles.statValue}>{list.length}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Vencidos</span>
+          <span className={styles.statValue}>{vencidos}</span>
+        </div>
       </div>
 
       <div className={styles.card}>
@@ -172,23 +256,18 @@ export default function Documentos() {
         <form className={styles.form} onSubmit={onSubmit}>
           <div className={styles.grid}>
             <label className={styles.field}>
-              <span>Documento *</span>
-              <input name="nombre" value={form.nombre} onChange={onChange} placeholder="Ej: SOAT" />
+              <span>Tipo *</span>
+              <input name="tipo" value={form.tipo} onChange={onChange} placeholder="Ej: SOAT / Tecno / Seguro" />
             </label>
 
             <label className={styles.field}>
-              <span>Número *</span>
-              <input name="numero" value={form.numero} onChange={onChange} placeholder="Ej: SOAT-88921" />
+              <span>Número / póliza</span>
+              <input name="numero" value={form.numero} onChange={onChange} placeholder="Opcional" />
             </label>
 
             <label className={styles.field}>
-              <span>Entidad *</span>
-              <input name="entidad" value={form.entidad} onChange={onChange} placeholder="Ej: Aseguradora / CDA / RUNT" />
-            </label>
-
-            <label className={styles.field}>
-              <span>Vencimiento *</span>
-              <input type="date" name="vencimiento" value={form.vencimiento} onChange={onChange} />
+              <span>Fecha de vencimiento</span>
+              <input type="date" name="fechaVencimiento" value={form.fechaVencimiento} onChange={onChange} />
             </label>
 
             <label className={`${styles.field} ${styles.fieldFull}`}>
@@ -198,44 +277,54 @@ export default function Documentos() {
           </div>
 
           <div className={styles.actions}>
-            <button className={styles.btn} type="submit">{editId ? "Guardar cambios" : "Agregar"}</button>
-            {editId && <button className={styles.btnSecondary} type="button" onClick={resetForm}>Cancelar</button>}
+            <button className={styles.btn} type="submit">
+              {editId ? "Guardar cambios" : "Agregar"}
+            </button>
+            {editId && (
+              <button className={styles.btnSecondary} type="button" onClick={resetForm}>
+                Cancelar
+              </button>
+            )}
           </div>
         </form>
       </div>
 
       <div className={styles.card}>
-        <h3 className={styles.cardTitle}>Listado de documentos</h3>
+        <h3 className={styles.cardTitle}>Documentos del vehículo</h3>
 
-        {documentosFiltrados.length === 0 ? (
-          <p>No hay documentos registrados para este vehículo.</p>
+        {list.length === 0 ? (
+          <p>No hay documentos para este vehículo.</p>
         ) : (
           <div className={styles.tableWrap}>
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Documento</th><th>Número</th><th>Entidad</th><th>Vencimiento</th><th>Estado</th><th>Notas</th><th>Acciones</th>
+                  <th>Tipo</th>
+                  <th>Número</th>
+                  <th>Vence</th>
+                  <th>Estado</th>
+                  <th>Notas</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {documentosFiltrados.map((d) => {
-                  const est = estadoDoc(d.vencimiento);
-                  const extra = est.texto === "Vigente" ? "" : ` (${Math.abs(est.dias)} día(s))`;
-                  return (
-                    <tr key={d.id}>
-                      <td>{d.nombre}</td>
-                      <td>{d.numero}</td>
-                      <td>{d.entidad}</td>
-                      <td>{d.vencimiento}</td>
-                      <td><span className={`${styles.estado} ${est.clase}`}>{est.texto}{extra}</span></td>
-                      <td>{d.notas || "-"}</td>
-                      <td className={styles.rowActions}>
-                        <button className={styles.mini} onClick={() => onEdit(d)}>Editar</button>
-                        <button className={`${styles.mini} ${styles.miniDanger}`} onClick={() => onDelete(d.id)}>Eliminar</button>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {list.map((d) => (
+                  <tr key={d.id}>
+                    <td>{d.tipo}</td>
+                    <td>{d.numero || "-"}</td>
+                    <td>{d.fechaVencimiento || "-"}</td>
+                    <td>{estadoVencimiento(d.fechaVencimiento)}</td>
+                    <td>{d.notas || "-"}</td>
+                    <td className={styles.rowActions}>
+                      <button className={styles.mini} onClick={() => onEdit(d)}>
+                        Editar
+                      </button>
+                      <button className={`${styles.mini} ${styles.miniDanger}`} onClick={() => onDelete(d.id)}>
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

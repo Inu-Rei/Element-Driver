@@ -1,39 +1,96 @@
-import { useMemo, useState } from "react";
+// ✅ src/pages/Mantenimientos.jsx
+import { useEffect, useMemo, useState } from "react";
 import styles from "../styles/Mantenimientos.module.css";
-import { getVehiculos, getMantenimientos, saveMantenimientos, uid } from "../data/storage";
+
+const API = "https://backend-element-driver.onrender.com/api";
 
 export default function Mantenimientos() {
-  const [vehiculos] = useState(getVehiculos());
-  const [mantenimientos, setMantenimientos] = useState(getMantenimientos());
+  const [vehiculos, setVehiculos] = useState([]);
+  const [mantenimientos, setMantenimientos] = useState([]);
 
-  const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState(vehiculos[0]?.id ?? "");
-
-  const initialForm = {
-    vehiculoId: vehiculos[0]?.id ?? "",
-    fecha: "",
-    tipo: "",
-    km: "",
-    taller: "",
-    costo: "",
-    notas: "",
-  };
-
-  const [form, setForm] = useState(initialForm);
+  const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState(
+    localStorage.getItem("vehiculoMants") || ""
+  );
   const [editId, setEditId] = useState(null);
   const [error, setError] = useState("");
 
-  const list = useMemo(() => {
-    return mantenimientos
-      .filter((m) => String(m.vehiculoId) === String(vehiculoSeleccionado))
-      .sort((a, b) => (a.fecha < b.fecha ? 1 : -1));
-  }, [mantenimientos, vehiculoSeleccionado]);
-
-  const totalGastado = useMemo(() => list.reduce((acc, m) => acc + (Number(m.costo) || 0), 0), [list]);
-
-  const setAndPersist = (next) => {
-    setMantenimientos(next);
-    saveMantenimientos(next);
+  const initialForm = {
+    vehiculoId: "",
+    fecha: "",
+    tipo: "",
+    km: "",
+    costo: "",
+    descripcion: "",
   };
+
+  const [form, setForm] = useState(initialForm);
+
+  const userId = localStorage.getItem("userId") || "";
+  const headersAuth = { "x-user-id": userId };
+
+  const cargarVehiculos = async () => {
+    try {
+      const res = await fetch(`${API}/vehiculos`, { headers: headersAuth });
+      const data = await res.json().catch(() => []);
+      const arr = Array.isArray(data) ? data : [];
+      setVehiculos(arr);
+
+      if (arr.length > 0) {
+        const guardado = localStorage.getItem("vehiculoMants");
+        const existe = guardado && arr.some((v) => String(v.id) === String(guardado));
+        const idFinal = existe ? String(guardado) : String(arr[0].id);
+
+        setVehiculoSeleccionado(idFinal);
+        localStorage.setItem("vehiculoMants", idFinal);
+        setForm((p) => ({ ...p, vehiculoId: idFinal }));
+      } else {
+        setVehiculoSeleccionado("");
+        setForm((p) => ({ ...p, vehiculoId: "" }));
+      }
+    } catch {
+      setVehiculos([]);
+      setError("No se pudo cargar la lista de vehículos (backend).");
+    }
+  };
+
+  const cargarMantenimientos = async (vehiculoId) => {
+    if (!vehiculoId) {
+      setMantenimientos([]);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API}/mantenimientos?vehiculoId=${vehiculoId}`, {
+        headers: headersAuth,
+      });
+      const data = await res.json().catch(() => []);
+      setMantenimientos(Array.isArray(data) ? data : []);
+    } catch {
+      setMantenimientos([]);
+      setError("No se pudo cargar mantenimientos (backend).");
+    }
+  };
+
+  useEffect(() => {
+    cargarVehiculos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    cargarMantenimientos(vehiculoSeleccionado);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vehiculoSeleccionado]);
+
+  const list = useMemo(() => {
+    return (Array.isArray(mantenimientos) ? mantenimientos : [])
+      .slice()
+      .sort((a, b) => (a.fecha < b.fecha ? 1 : -1));
+  }, [mantenimientos]);
+
+  const totalGastado = useMemo(
+    () => list.reduce((acc, m) => acc + (Number(m.costo) || 0), 0),
+    [list]
+  );
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -45,19 +102,21 @@ export default function Mantenimientos() {
     if (!form.vehiculoId) return "Debes seleccionar un vehículo.";
     if (!form.fecha) return "La fecha es obligatoria.";
     if (!form.tipo.trim()) return "El tipo es obligatorio.";
-    if (!String(form.km).trim()) return "El kilometraje es obligatorio.";
-    if (!form.taller.trim()) return "El taller es obligatorio.";
-    if (!String(form.costo).trim()) return "El costo es obligatorio.";
+    if (String(form.km).trim() === "") return "El kilometraje es obligatorio.";
+    if (String(form.costo).trim() === "") return "El costo es obligatorio.";
     return "";
   };
 
   const resetForm = () => {
-    setForm((p) => ({ ...initialForm, vehiculoId: vehiculoSeleccionado }));
+    setForm((p) => ({
+      ...initialForm,
+      vehiculoId: vehiculoSeleccionado || "",
+    }));
     setEditId(null);
     setError("");
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     const msg = validar();
     if (msg) return setError(msg);
@@ -67,39 +126,67 @@ export default function Mantenimientos() {
       fecha: form.fecha,
       tipo: form.tipo.trim(),
       km: Number(form.km),
-      taller: form.taller.trim(),
       costo: Number(form.costo),
-      notas: form.notas.trim(),
+      descripcion: form.descripcion.trim(),
     };
 
-    if (editId) {
-      const next = mantenimientos.map((m) => (m.id === editId ? { ...m, ...payload } : m));
-      setAndPersist(next);
-    } else {
-      const next = [{ id: uid(), ...payload }, ...mantenimientos];
-      setAndPersist(next);
+    try {
+      const url = editId ? `${API}/mantenimientos/${editId}` : `${API}/mantenimientos`;
+      const method = editId ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json", ...headersAuth },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        setError(data?.message || "Error guardando mantenimiento en el backend.");
+        return;
+      }
+
+      resetForm();
+      await cargarMantenimientos(vehiculoSeleccionado);
+    } catch {
+      setError("No se pudo conectar con el backend para guardar.");
     }
-    resetForm();
   };
 
   const onEdit = (m) => {
     setEditId(m.id);
     setForm({
-      vehiculoId: m.vehiculoId,
-      fecha: m.fecha,
-      tipo: m.tipo,
-      km: m.km,
-      taller: m.taller,
-      costo: m.costo,
-      notas: m.notas || "",
+      vehiculoId: String(m.vehiculoId ?? vehiculoSeleccionado ?? ""),
+      fecha: m.fecha ?? "",
+      tipo: m.tipo ?? "",
+      km: String(m.km ?? ""),
+      costo: String(m.costo ?? ""),
+      descripcion: m.descripcion ?? "",
     });
+    setError("");
   };
 
-  const onDelete = (id) => {
+  const onDelete = async (id) => {
     if (!window.confirm("¿Seguro que deseas eliminar este mantenimiento?")) return;
-    const next = mantenimientos.filter((m) => m.id !== id);
-    setAndPersist(next);
-    if (editId === id) resetForm();
+
+    try {
+      const res = await fetch(`${API}/mantenimientos/${id}`, {
+        method: "DELETE",
+        headers: headersAuth,
+      });
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        setError(data?.message || "Error eliminando mantenimiento en el backend.");
+        return;
+      }
+
+      if (editId === id) resetForm();
+      await cargarMantenimientos(vehiculoSeleccionado);
+    } catch {
+      setError("No se pudo conectar con el backend para eliminar.");
+    }
   };
 
   const vehiculoActual = vehiculos.find((v) => String(v.id) === String(vehiculoSeleccionado));
@@ -109,7 +196,9 @@ export default function Mantenimientos() {
       <div className={styles.header}>
         <h2 className={styles.title}>Mantenimientos</h2>
         <p className={styles.subtitle}>
-          {vehiculoActual ? `Vehículo: ${vehiculoActual.nombre} (${vehiculoActual.placa})` : "Registro de mantenimientos"}
+          {vehiculoActual
+            ? `Vehículo: ${vehiculoActual.marca ?? ""} ${vehiculoActual.modelo ?? ""} (${vehiculoActual.placa ?? ""})`
+            : "Registro de mantenimientos"}
         </p>
       </div>
 
@@ -122,17 +211,23 @@ export default function Mantenimientos() {
               className={styles.select}
               value={vehiculoSeleccionado}
               onChange={(e) => {
-                setVehiculoSeleccionado(e.target.value);
-                setForm((p) => ({ ...p, vehiculoId: e.target.value }));
+                const id = e.target.value;
+                setVehiculoSeleccionado(id);
+                localStorage.setItem("vehiculoMants", id);
+                setForm((p) => ({ ...p, vehiculoId: id }));
                 setEditId(null);
                 setError("");
               }}
             >
-              {vehiculos.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.placa} — {v.nombre}
-                </option>
-              ))}
+              {vehiculos.length === 0 ? (
+                <option value="">No hay vehículos</option>
+              ) : (
+                vehiculos.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.placa} — {v.marca} {v.modelo}
+                  </option>
+                ))
+              )}
             </select>
           </label>
         </div>
@@ -171,24 +266,30 @@ export default function Mantenimientos() {
             </label>
 
             <label className={styles.field}>
-              <span>Taller *</span>
-              <input name="taller" value={form.taller} onChange={onChange} placeholder="Ej: MotoCenter" />
-            </label>
-
-            <label className={styles.field}>
               <span>Costo (COP) *</span>
               <input name="costo" value={form.costo} onChange={onChange} placeholder="Ej: 95000" />
             </label>
 
             <label className={`${styles.field} ${styles.fieldFull}`}>
-              <span>Notas</span>
-              <input name="notas" value={form.notas} onChange={onChange} placeholder="Opcional" />
+              <span>Descripción</span>
+              <input
+                name="descripcion"
+                value={form.descripcion}
+                onChange={onChange}
+                placeholder="Ej: Aceite + filtro / detalles"
+              />
             </label>
           </div>
 
           <div className={styles.actions}>
-            <button className={styles.btn} type="submit">{editId ? "Guardar cambios" : "Agregar"}</button>
-            {editId && <button className={styles.btnSecondary} type="button" onClick={resetForm}>Cancelar</button>}
+            <button className={styles.btn} type="submit">
+              {editId ? "Guardar cambios" : "Agregar"}
+            </button>
+            {editId && (
+              <button className={styles.btnSecondary} type="button" onClick={resetForm}>
+                Cancelar
+              </button>
+            )}
           </div>
         </form>
       </div>
@@ -203,7 +304,12 @@ export default function Mantenimientos() {
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Fecha</th><th>Tipo</th><th>Km</th><th>Taller</th><th>Costo</th><th>Notas</th><th>Acciones</th>
+                  <th>Fecha</th>
+                  <th>Tipo</th>
+                  <th>Km</th>
+                  <th>Costo</th>
+                  <th>Descripción</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -211,13 +317,16 @@ export default function Mantenimientos() {
                   <tr key={m.id}>
                     <td>{m.fecha}</td>
                     <td>{m.tipo}</td>
-                    <td>{Number(m.km).toLocaleString("es-CO")}</td>
-                    <td>{m.taller}</td>
-                    <td>${Number(m.costo).toLocaleString("es-CO")}</td>
-                    <td>{m.notas || "-"}</td>
+                    <td>{(Number(m.km) || 0).toLocaleString("es-CO")}</td>
+                    <td>${(Number(m.costo) || 0).toLocaleString("es-CO")}</td>
+                    <td>{m.descripcion || "-"}</td>
                     <td className={styles.rowActions}>
-                      <button className={styles.mini} onClick={() => onEdit(m)}>Editar</button>
-                      <button className={`${styles.mini} ${styles.miniDanger}`} onClick={() => onDelete(m.id)}>Eliminar</button>
+                      <button className={styles.mini} onClick={() => onEdit(m)}>
+                        Editar
+                      </button>
+                      <button className={`${styles.mini} ${styles.miniDanger}`} onClick={() => onDelete(m.id)}>
+                        Eliminar
+                      </button>
                     </td>
                   </tr>
                 ))}
